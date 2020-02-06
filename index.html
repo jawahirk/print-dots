@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="author" content="Jawahir K">
+  <meta name="description" content="HTML5 Canvas PrintDots Demo page,
+  This page prints JSON Bitmap array in HTML5 Canvas. If you're interested, Please have a look at the code">
+  <title>HTML5 Canvas PrintDots</title>
+  <script src="js/printDots.js"></script>
+</head>
+<body>
+  <canvas id="myCanvas">Hello World</canvas>
+  <script>
+    // Set Canvas size
+    const canvas = document.getElementById('myCanvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    fetch('assets/image.json')
+      .then(
+        function(response) {
+          if (response.status !== 200) {
+            console.log('Looks like there was a problem. Status Code: ' +
+              response.status);
+            return;
+          }
+          response.json().then(function(imgArr) {
+            printDots(imgArr, 'myCanvas');
+          });
+        }
+      )
+      .catch(function(err) {
+        console.log('Fetch Error :-S', err);
+      });
+  </script>
+</body>
+</html>
