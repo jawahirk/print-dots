@@ -10,12 +10,10 @@
  *                      eg:- 'pink', 'rgba(255, 255, 255, 1)' or CanvasGradient object
  * @param spacing     Spacing between dots, default 1
  * 
- * @param timer       Timer for scheduler randomization in seconds, default 2
- *                    actual loading time may depends on h/w perfomance
  * @return Nothing
  */
 
-function printDots(imageArray, canvasId, canvasSize, color = 'red', spacing = 1, timer = 2){
+function printDots(imageArray, canvasId, canvasSize, color = 'red', spacing = 1){
   if(!imageArray || imageArray.length < 1){
     console.error("Invalid Image, Please check the image source : ", imageArray);
     return false;
@@ -32,22 +30,32 @@ function printDots(imageArray, canvasId, canvasSize, color = 'red', spacing = 1,
   const imageSize = getImageDimentions(imageArray);
   const radius = getDotRadius(imageSize, canvasSize, spacing);
   let x = radius, y = radius;
-  const printImageDot = printDot.bind({}, canvasContext, radius);
-  timer = timer * 1000; //Convert to milliseconds
   spacing = spacing + 2 * radius; // Adding diameter of dot
   canvasContext.fillStyle = color;
-  
+
+  let printQueue = [];
+
   for(let i = 0; i < imageArray.length;i++){
     for(let j=0;j< imageArray[i].length;j++){
       if(imageArray[i][j] === '1'){
-        let printTime = Math.floor(Math.random()*timer);
-        setTimeout(printImageDot, printTime, x, y);
+        printQueue.push([x, y]);
       }
       x += spacing;
     }
     x = radius;
     y += spacing;
   }
+  printQueue.sort(()=> (Math.random()-0.5));  //Shuffle list
+  let scheduler, pixel;
+  scheduler = setInterval(()=>{
+    if(pixel = printQueue.pop()){
+      canvasContext.beginPath();
+      canvasContext.arc(pixel[0], pixel[1], radius, 0, 2 * Math.PI);
+      canvasContext.fill();
+    } else {
+      clearInterval(scheduler);
+    }
+  }, 0);
 }
 
 /**
@@ -73,8 +81,4 @@ function getDotRadius(imageSize, canvasSize, spacing){
   return Math.floor(dotDiameter/2);
 }
 
-function printDot(context, radius, x, y){
-  context.beginPath();
-  context.arc(x, y, radius, 0, 2 * Math.PI);
-  context.fill();
-};
+// export default printDot;
